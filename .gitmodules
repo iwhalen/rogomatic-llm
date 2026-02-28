@@ -1,0 +1,3 @@
+[submodule "rogue-collection"]
+	path = rogue-collection
+	url = https://github.com/iwhalen/Rogue-Collection
