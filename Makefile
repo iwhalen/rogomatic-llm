@@ -1,8 +1,11 @@
 ROGUE_DIR := rogue-collection
 
-.PHONY: install build run clean distclean
+.PHONY: help install build-rogue run-rogue clean-rogue distclean-rogue lint test
 
-install:
+help: ## Show available commands
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+install: ## Install system dependencies (Qt5, build tools)
 	sudo apt-get update
 	sudo apt-get install -y \
 		build-essential \
@@ -18,14 +21,18 @@ install:
 		qml-module-qtquick-window2 \
 		qml-module-qtmultimedia
 
-build:
+build-rogue: ## Build rogue-collection
 	$(MAKE) -C $(ROGUE_DIR)
 
-run:
+run-rogue: ## Run rogue-collection
 	$(MAKE) -C $(ROGUE_DIR) run
 
-clean:
-	$(MAKE) -C $(ROGUE_DIR) clean
-
-distclean:
+clean-rogue: ## Clean rogue-collection build artifacts
 	$(MAKE) -C $(ROGUE_DIR) distclean
+
+lint: ## Run linters (ruff, ty)
+	uv run ruff check .
+	uv run ty check
+
+test: ## Run tests
+	uv run pytest

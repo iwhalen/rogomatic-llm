@@ -1,0 +1,1 @@
+"""Claude plays Rogue tests."""
