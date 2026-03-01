@@ -34,7 +34,7 @@ uv run rogomatic-llm --player human
 
 You should see something like this, which means you're ready to play.
 
-``` bash 
+``` bash
 ╭───────────────────────────────────── Rogue ──────────────────────────────────────╮
 │                                                                                  │
 │                                                                                  │
@@ -63,6 +63,8 @@ You should see something like this, which means you're ready to play.
 ╰──────────────────────────────────────────────────────────────────────────────────╯
 ```
 
-This is no different than regular old Rogue from the GUI (i.e., with `make run-rogue`).
+This is no different than regular old Rogue from the GUI (i.e., with `make run-rogue`). 
 
 To exit, send a CTRL+C signal.
+
+You won't be able to save, resize, or anything else. So, if you only want to play Rogue, run `make run-rogue` instead.
