@@ -2,9 +2,11 @@
 
 ![VHS gif of rogomatic-llm](static/demo.gif)
 
+> Make your own animations like this with [VHS](https://github.com/charmbracelet/vhs). 
+
 The goal of this repo is to play Rogue with LLMs.
 
-It uses a modified version of the Rogue Collection that can be found here: [https://github.com/iwhalen/Rogue-Collection](https://github.com/iwhalen/Rogue-Collection)
+It uses a modified version of the Rogue Collection that can be found [here](https://github.com/iwhalen/Rogue-Collection).
 
 ## Quickstart
 
