@@ -1,5 +1,7 @@
 # Rogomatic for LLMs
 
+![VHS gif of rogomatic-llm](static/demo.gif)
+
 The goal of this repo is to play Rogue with LLMs.
 
 It uses a modified version of the Rogue Collection that can be found here: [https://github.com/iwhalen/Rogue-Collection](https://github.com/iwhalen/Rogue-Collection)
@@ -21,8 +23,17 @@ This should open a window where you can play Rogue!
 
 ## AI mode
 
-TODO
+First, create a `.env` with your API key in it:
 
+``` bash
+cp .env.sample .env
+```
+
+By default, this works with Sonnet-4.6.
+
+``` bash
+uv run rogomatic-llm
+```
 
 ## Human mode
 
