@@ -7,12 +7,13 @@ import typer
 from dotenv import load_dotenv
 
 from rogomatic_llm.config import (
+    DEFAULT_ACTION_DELAY,
     DEFAULT_MAX_HISTORY,
     DEFAULT_MODEL,
     DEFAULT_ROGUE_PATH,
     DEFAULT_ROGUE_VERSION,
-    CPRSettings,
     PlayerType,
+    PlaySettings,
     RogueVersion,
 )
 from rogomatic_llm.play import play
@@ -54,16 +55,23 @@ def main(
             help="Number of recent action/result pairs to retain in AI context.",
         ),
     ] = DEFAULT_MAX_HISTORY,
+    action_delay: Annotated[
+        float,
+        typer.Option(
+            help="Seconds to wait between actions in LLM mode.",
+        ),
+    ] = DEFAULT_ACTION_DELAY,
 ) -> None:
     """Main typer application. Starts the play session with the given options."""
     load_dotenv(".env", override=True)
 
-    settings = CPRSettings(
+    settings = PlaySettings(
         player=player,
         rogue_path=rogue_path,
         rogue_version=rogue_version,
         model=model_str,
         max_history=max_history,
+        action_delay=action_delay,
     )
 
     play(settings)

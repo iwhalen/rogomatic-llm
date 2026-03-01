@@ -74,11 +74,25 @@ class TestPlay:
         mock_game: MagicMock,
         mock_stdin: MagicMock,
     ) -> None:
-        with pytest.raises(RuntimeError, match="boom"):
-            with patch("rogomatic_llm.player.base.sys.stdin", mock_stdin):
-                player.play(mock_game)
+        with (
+            pytest.raises(RuntimeError, match="boom"),
+            patch("rogomatic_llm.player.base.sys.stdin", mock_stdin),
+        ):
+            player.play(mock_game)
 
         mock_tcsetattr.assert_called_once()
+
+
+def _run_io_loop(
+    mock_game: MagicMock, *, fd_in: int = 0, stdout_fd: int = 1
+) -> None:
+    """Helper to call _io_loop with a standard console/buf."""
+    buf = StringIO()
+    console = Console(file=buf, force_terminal=True, width=86)
+    HumanPlayer()._io_loop(
+        mock_game, fd_in=fd_in, stdout_fd=stdout_fd,
+        console=console, buf=buf,
+    )
 
 
 class TestIOLoop:
@@ -102,9 +116,7 @@ class TestIOLoop:
         mock_base_select.return_value = ([], [], [])
         mock_read.return_value = b"\x1b[11;41H@"
 
-        buf = StringIO()
-        console = Console(file=buf, force_terminal=True, width=86)
-        HumanPlayer()._io_loop(mock_game, fd_in=0, stdout_fd=1, console=console, buf=buf)
+        _run_io_loop(mock_game)
 
         mock_game.feed.assert_called_once_with(b"\x1b[11;41H@")
 
@@ -123,9 +135,7 @@ class TestIOLoop:
         mock_select.return_value = ([fd_in], [], [])
         mock_read.return_value = b"h"
 
-        buf = StringIO()
-        console = Console(file=buf, force_terminal=True, width=86)
-        HumanPlayer()._io_loop(mock_game, fd_in=fd_in, stdout_fd=1, console=console, buf=buf)
+        _run_io_loop(mock_game, fd_in=fd_in)
 
         mock_write.assert_any_call(mock_game.input_fd, b"h")
 
@@ -146,9 +156,7 @@ class TestIOLoop:
         mock_base_select.return_value = ([], [], [])
         mock_read.return_value = b""
 
-        buf = StringIO()
-        console = Console(file=buf, force_terminal=True, width=86)
-        HumanPlayer()._io_loop(mock_game, fd_in=0, stdout_fd=1, console=console, buf=buf)
+        _run_io_loop(mock_game)
 
         mock_game.feed.assert_not_called()
 
@@ -165,9 +173,7 @@ class TestIOLoop:
         mock_game.is_running.return_value = True
         mock_select.side_effect = KeyboardInterrupt
 
-        buf = StringIO()
-        console = Console(file=buf, force_terminal=True, width=86)
-        HumanPlayer()._io_loop(mock_game, fd_in=0, stdout_fd=1, console=console, buf=buf)
+        _run_io_loop(mock_game)
 
     @patch("rogomatic_llm.player.human.os.write")
     @patch("rogomatic_llm.player.human.os.read")
@@ -183,9 +189,7 @@ class TestIOLoop:
         mock_select.return_value = ([0], [], [])
         mock_read.return_value = b"\x03"
 
-        buf = StringIO()
-        console = Console(file=buf, force_terminal=True, width=86)
-        HumanPlayer()._io_loop(mock_game, fd_in=0, stdout_fd=1, console=console, buf=buf)
+        _run_io_loop(mock_game)
 
         for c in mock_write.call_args_list:
             assert c[0][0] != mock_game.input_fd

@@ -2,13 +2,13 @@
 
 import os
 
-from rogomatic_llm.config import CPRSettings, PlayerType
+from rogomatic_llm.config import PlayerType, PlaySettings
 from rogomatic_llm.external.game import RogueGame
 from rogomatic_llm.player.human import HumanPlayer
 from rogomatic_llm.player.llm import LLMPlayer
 
 
-def play(config: CPRSettings) -> None:
+def play(config: PlaySettings) -> None:
     """Play a game of Rogue given the config."""
     rogue_path = config.rogue_path.resolve()
 
@@ -21,7 +21,11 @@ def play(config: CPRSettings) -> None:
     if config.player == PlayerType.HUMAN:
         player = HumanPlayer()
     elif config.player == PlayerType.LLM:
-        player = LLMPlayer(model=config.model, max_history=config.max_history)
+        player = LLMPlayer(
+            model=config.model,
+            max_history=config.max_history,
+            action_delay=config.action_delay,
+        )
     else:
         raise NotImplementedError(f"Invalid player type: {config.player}")
 

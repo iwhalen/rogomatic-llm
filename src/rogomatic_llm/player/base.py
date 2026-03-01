@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 from io import StringIO
 from typing import TYPE_CHECKING
 
-from rich.console import Console
+from rich.console import Console, Group, RenderableType
 from rich.panel import Panel
 from rich.text import Text
 
@@ -52,6 +52,74 @@ def render_frame(
     buf.seek(0)
     buf.truncate()
     console.print(game_panel, end="")
+    text = buf.getvalue()
+    text = text.replace("\n", "\r\n")
+    return _HIDE_CURSOR + _HOME + text.encode() + _CLEAR_BELOW + _SHOW_CURSOR
+
+
+def render_llm_frame(
+    console: Console,
+    buf: StringIO,
+    screen_chars: list[list[str]],
+    *,
+    actions: list[str] | None = None,
+    executed_count: int = 0,
+    reasoning: str | None = None,
+    spinner: RenderableType | None = None,
+) -> bytes:
+    """Render game panel plus LLM status panels (actions, reasoning, spinner).
+
+    Returns raw bytes ready for ``os.write`` to a raw-mode terminal.
+    """
+    game_content = "\n".join("".join(row) for row in screen_chars)
+    game_panel = Panel(
+        Text(game_content, no_wrap=True, overflow="crop"),
+        title="[bold yellow]Rogue[/bold yellow]",
+        border_style="green",
+        width=_GAME_PANEL_W,
+        height=_GAME_PANEL_H,
+    )
+
+    # Build actions panel content
+    actions_content: RenderableType
+    if spinner is not None:
+        actions_content = spinner
+    elif actions is not None:
+        txt = Text()
+        for i, key in enumerate(actions):
+            display = repr(key)
+            style = "dim" if i < executed_count else "bold white"
+            txt.append(display, style=style)
+            if i < len(actions) - 1:
+                txt.append("  ", style="dim")
+        actions_content = txt
+    else:
+        actions_content = Text("Waiting...", style="dim")
+
+    actions_panel = Panel(
+        actions_content,
+        title="[bold cyan]Actions[/bold cyan]",
+        border_style="cyan",
+        width=_GAME_PANEL_W,
+    )
+
+    parts: list[Panel] = [game_panel, actions_panel]
+
+    if reasoning is not None:
+        reasoning_panel = Panel(
+            Text(reasoning, style="italic", overflow="ellipsis"),
+            title="[bold magenta]Reasoning[/bold magenta]",
+            border_style="magenta",
+            width=_GAME_PANEL_W,
+            height=6,
+        )
+        parts.append(reasoning_panel)
+
+    group = Group(*parts)
+
+    buf.seek(0)
+    buf.truncate()
+    console.print(group, end="")
     text = buf.getvalue()
     text = text.replace("\n", "\r\n")
     return _HIDE_CURSOR + _HOME + text.encode() + _CLEAR_BELOW + _SHOW_CURSOR

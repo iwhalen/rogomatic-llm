@@ -102,7 +102,10 @@ class TestStart:
         assert game._frogue_fd == FROGUE_R
         assert game._trogue_fd == TROGUE_W
 
-    @patch("rogomatic_llm.external.game.subprocess.Popen", side_effect=OSError("spawn failed"))
+    @patch(
+        "rogomatic_llm.external.game.subprocess.Popen",
+        side_effect=OSError("spawn failed"),
+    )
     @patch("rogomatic_llm.external.game.os.set_inheritable")
     @patch("rogomatic_llm.external.game.os.close")
     def test_start_closes_all_fds_on_popen_failure(
